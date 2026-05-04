@@ -8,7 +8,7 @@ phase: Phase 1B
 owner_agent: A1 Data Adapters and A2 Event Store
 review_agent: A10 Validation And Benchmarks
 priority: high
-status: in_progress
+status: review
 ```
 
 ## Objective
@@ -225,3 +225,50 @@ Stop and escalate if the task needs:
 - Polars Parquet docs: https://docs.pola.rs/user-guide/io/parquet/
 - DuckDB Python API: https://duckdb.org/docs/stable/clients/python/overview
 - Pydantic strict mode: https://docs.pydantic.dev/latest/concepts/strict_mode/
+
+## Implementation Notes
+
+Status updated to `review` on 2026-05-04 after adding the Phase 1B offline data
+and event-store skeleton.
+
+Added:
+
+- Strict provider-neutral Pydantic schemas for bars, quotes, trades, depth,
+  news, calendar, corporate actions, dataset manifests, and event-batch
+  manifests.
+- Offline-only synthetic fixture adapter with tiny safe market and exogenous
+  records.
+- Local immutable Parquet-oriented event-store skeleton with registration and
+  query methods.
+- Data validation guards for event ordering, decision-time availability,
+  crossed quotes, manifest commit safety, secret safety, paid-payload safety,
+  row-count alignment, timestamp range alignment, and record-type alignment.
+- Tests for schema construction, invalid fixture rejection, manifest safety,
+  local Parquet round trip, immutable registration, import health, and safety
+  surface scanning.
+
+Validation run:
+
+- `.venv/bin/python -c "import platform; print(platform.machine())"`: `arm64`.
+- `.venv/bin/python -c "import sys; print(sys.version)"`: Python `3.12.13`.
+- `.venv/bin/pytest`: passed, 19 tests.
+- `.venv/bin/ruff check .`: passed.
+- `.venv/bin/ruff format --check .`: passed.
+- `.venv/bin/mypy src`: passed.
+- `rg -n "alpaca|binance|coinbase|interactive brokers|kraken|api_key|secret_key|order_router|order_url" src configs benchmarks tests`:
+  no matches.
+
+Validation not run:
+
+- Exact `python -c ...` commands were not available because `python` is not on
+  the shell path.
+- `uv sync --locked` and exact `uv run ...` commands were not available because
+  `uv` is not on the shell path.
+
+Safety review:
+
+- No live broker endpoints, live credential paths, live order routers,
+  live-trading flags, paid data payloads, raw vendor archives, secrets, private
+  account information, future-data features, production model logic, backtest
+  logic, paper broker implementation, trading logic, or profitability claims
+  were added.

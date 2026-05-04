@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Iterable, Mapping
+from collections.abc import Iterable, Mapping, Sequence
 from typing import Protocol
 
 from trident_lob.config import RunConfig
@@ -20,6 +20,7 @@ from trident_lob.contracts.types import (
     TurbulenceFrame,
     ValidationReport,
 )
+from trident_lob.data.schemas import CanonicalDataRecord, EventBatchManifest, RecordType
 
 
 class DataAdapter(Protocol):
@@ -32,6 +33,23 @@ class EventStore(Protocol):
     def write(self, batch: DataBatch, manifest: RunManifest) -> ArtifactRef: ...
 
     def scan(self, query: DataSliceSpec) -> Iterable[Mapping[str, object]]: ...
+
+
+class OfflineEventStore(Protocol):
+    def register_batch(
+        self,
+        records: Sequence[CanonicalDataRecord],
+        manifest: EventBatchManifest,
+    ) -> ArtifactRef: ...
+
+    def query_events(
+        self,
+        *,
+        record_type: RecordType | None = None,
+        symbol: str | None = None,
+        start_ns: int | None = None,
+        end_ns: int | None = None,
+    ) -> object: ...
 
 
 class FeatureBuilder(Protocol):
