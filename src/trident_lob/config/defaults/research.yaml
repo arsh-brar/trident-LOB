@@ -1,0 +1,25 @@
+schema_version: "0.1"
+mode:
+  phase: "phase_1_research"
+  execution_mode: "offline_research"
+data:
+  data_mode: "synthetic"
+  license_class: "free"
+  paid_payload_free: true
+  secret_free: true
+validation:
+  split_policy: "chronological"
+  require_availability_check: true
+  allow_random_row_split: false
+tracking:
+  tracking_uri: "experiments/mlruns"
+  registry_aliases:
+    - "exploratory"
+    - "candidate"
+    - "rejected"
+    - "archived"
+risk:
+  max_research_drawdown_fraction: 0.05
+  allow_short: false
+  allow_margin: false
+

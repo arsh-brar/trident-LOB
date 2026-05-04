@@ -47,8 +47,10 @@ mlruns/
 experiments/mlruns/
 experiments/audit/
 experiments/run_manifests/*.json
-reports/generated/
-models/registry/
+reports/generated/*
+!reports/generated/README.md
+models/registry/*
+!models/registry/README.md
 
 # Notebooks
 .ipynb_checkpoints/

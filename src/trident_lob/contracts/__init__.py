@@ -1,0 +1,53 @@
+"""Shared protocols and lightweight boundary types."""
+
+from trident_lob.contracts.protocols import (
+    Backtester,
+    DataAdapter,
+    EventStore,
+    FeatureBuilder,
+    LabelBuilder,
+    PredictionModel,
+    PriceInterfaceEstimator,
+    ReportGenerator,
+    RiskManager,
+    TurbulenceEstimator,
+)
+from trident_lob.contracts.types import (
+    ArtifactRef,
+    DataBatch,
+    DataSliceSpec,
+    FeatureFrame,
+    InterfaceFrame,
+    LabelFrame,
+    ModelArtifact,
+    PredictionFrame,
+    RiskDecision,
+    RunManifest,
+    TurbulenceFrame,
+    ValidationReport,
+)
+
+__all__ = [
+    "ArtifactRef",
+    "Backtester",
+    "DataAdapter",
+    "DataBatch",
+    "DataSliceSpec",
+    "EventStore",
+    "FeatureBuilder",
+    "FeatureFrame",
+    "InterfaceFrame",
+    "LabelBuilder",
+    "LabelFrame",
+    "ModelArtifact",
+    "PredictionFrame",
+    "PredictionModel",
+    "PriceInterfaceEstimator",
+    "ReportGenerator",
+    "RiskDecision",
+    "RiskManager",
+    "RunManifest",
+    "TurbulenceEstimator",
+    "TurbulenceFrame",
+    "ValidationReport",
+]

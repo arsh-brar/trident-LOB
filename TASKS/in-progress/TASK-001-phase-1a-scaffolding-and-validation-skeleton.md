@@ -8,7 +8,7 @@ phase: Phase 1A
 owner_agent: A0 Contracts And Config
 review_agent: A10 Validation And Benchmarks
 priority: high
-status: in_progress
+status: review
 ```
 
 ## Objective
@@ -201,3 +201,9 @@ Stop and escalate if the task needs:
 - Ruff docs: https://docs.astral.sh/ruff/
 - mypy docs: https://mypy.readthedocs.io/en/latest/getting_started.html
 - pre-commit docs: https://pre-commit.com/
+
+## Implementation Notes
+
+Status updated to `review` after adding the initial Phase 1A scaffold. Validation
+ran with `uv` from a temporary tool environment, `UV_CACHE_DIR` under
+`/private/tmp`, and the locked project Python 3.12 environment.
