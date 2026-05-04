@@ -1,0 +1,5 @@
+# Placeholder only.
+#
+# Phase 0 must not create production code. Phase 1 coding agents should replace
+# this with a real `pyproject.toml` after stack decisions and validation gates
+# are accepted.

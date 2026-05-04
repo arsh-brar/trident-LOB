@@ -1,0 +1,59 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.hypothesis/
+.coverage
+htmlcov/
+dist/
+build/
+*.egg-info/
+
+# Virtual environments and local tooling
+.venv/
+venv/
+env/
+.python-version
+.DS_Store
+.idea/
+.vscode/
+
+# Secrets and local environment
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+secrets/
+
+# Data and artifacts
+data/raw/
+data/interim/
+data/processed/
+data/external/
+*.parquet
+*.feather
+*.duckdb
+*.db
+*.sqlite
+
+# Experiment tracking and generated reports
+mlruns/
+experiments/mlruns/
+experiments/audit/
+experiments/run_manifests/*.json
+reports/generated/
+models/registry/
+
+# Notebooks
+.ipynb_checkpoints/
+
+# DVC local cache and config with local remotes
+.dvc/cache/
+.dvc/tmp/
+.dvc/config.local

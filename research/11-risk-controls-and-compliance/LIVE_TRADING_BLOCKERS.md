@@ -1,0 +1,44 @@
+# Live Trading Blockers
+
+Status: hard blockers. Phase 0 and Phase 1 block live trading.
+
+## Absolute Blockers For Phase 0 And Phase 1
+
+- Live trading is blocked in Phase 0 and Phase 1 because the project model specification limits the first implementation to simulation, backtesting, and paper trading with live trading blocked by validation gates: ../../docs/TRIDENT_LOB_MODEL.md
+- Live-trading code is blocked unless a later explicit task requests it after validation gates have passed, because repository hard rules prohibit live trades and live-trading code before explicit approval: ../../AGENTS.md
+- Broker credentials, API keys, paid data credentials, and private account information must not be committed, because repository hard rules prohibit committing these materials: ../../AGENTS.md
+- Profitability claims are blocked unless backed by out-of-sample, transaction-cost-adjusted evidence, because repository hard rules prohibit unsupported profitability claims and SEC warns not to believe claims of easy profits from day trading: ../../AGENTS.md and https://www.sec.gov/about/reports-publications/investor-publications/day-trading-your-dollars-at-risk
+- Any system using future data is blocked, because repository hard rules prohibit future data and the TRIDENT model depends on timestamped event streams: ../../AGENTS.md and ../../docs/TRIDENT_LOB_MODEL.md
+
+## Hard Conditions Before Live Trading Is Even Considered
+
+Every condition below must be satisfied before a future live-readiness discussion. Passing this list would not itself approve live trading.
+
+- Independent legal and compliance review must confirm whether the project, operator, account structure, strategy publication, and any managed-account behavior create broker-dealer, investment adviser, state registration, tax, or other obligations. FINRA Rule 2270 notes potential registration requirements for persons providing investment advice or managing securities accounts: https://www.finra.org/rules-guidance/rulebooks/finra-rules/2270
+- The selected broker must confirm current day-trading and intraday margin requirements in writing, including how it implemented SR-FINRA-2025-017. This is required because the SEC approved the rule change on April 14, 2026, while FINRA public interpretations still show legacy PDT language: https://www.sec.gov/rules-regulations/self-regulatory-organization-rulemaking/sr-finra-2025-017 and https://www.finra.org/rules-guidance/guidance/interps-4210
+- The selected broker must confirm account approval, margin eligibility, order types, shorting permissions, rate limits, extended-hours rules, buying-power calculations, and house requirements. Broker house requirements can exceed regulatory minimums, and Alpaca documents broker-specific order and buying-power behavior: https://www.finra.org/rules-guidance/key-topics/margin-accounts and https://docs.alpaca.markets/docs/trading/orders/
+- A market-access style control document must exist and be approved, including pre-set credit, capital, price, size, duplicate-order, access-control, and immediate report controls. SEC Rule 15c3-5 requires documented risk management controls and supervisory procedures for market access: https://ecfr.io/Title-17/Section-240.15c3-5
+- A tested kill-switch implementation must halt new exposure on daily loss, exposure breach, model failure, stale data, future data, halt or LULD state, broker reject burst, broker disconnect, and manual halt. These controls map to SEC Rule 15c3-5 financial and regulatory risk controls and FINRA day-trading system-failure warnings: https://ecfr.io/Title-17/Section-240.15c3-5 and https://www.finra.org/rules-guidance/rulebooks/finra-rules/2270
+- A complete audit log and replay system must exist for signals, features, timestamps, risk decisions, rejects, simulated orders, fills, cancels, overrides, and approvals. This supports documented controls and immediate post-trade reporting principles under SEC Rule 15c3-5: https://ecfr.io/Title-17/Section-240.15c3-5
+- The backtester must prove no future data, correct timestamp alignment, corporate action handling, trading halt handling, and transaction-cost-adjusted out-of-sample reporting. Repository rules prohibit future data and unsupported profitability claims: ../../AGENTS.md
+- Paper trading must run through a broker paper environment for a statistically meaningful period and the report must disclose paper limitations. Alpaca states paper trading omits market impact, information leakage, latency slippage, queue position, price improvement, regulatory fees, and dividends: https://docs.alpaca.markets/docs/trading/paper-trading/
+- Short selling must remain blocked unless borrow availability, locate documentation, close-out handling, short-sale marking, hard-to-borrow costs, and forced-buy-in behavior are modeled and approved. Regulation SHO requires locate and close-out controls: https://www.sec.gov/investor/pubs/regsho.htm and https://ecfr.io/Title-17/Part-242/SubjectGroup-regulation-sho-regulation-of-short-sales
+- Margin must remain blocked unless Regulation T, FINRA Rule 4210, broker house requirements, intraday margin deficits, margin calls, liquidation behavior, and buying-power calculations are modeled and approved. Margin requirements come from Federal Reserve Regulation T, FINRA rules, and broker requirements: https://www.federalreserve.gov/frrs/regulations/section-22012-supplement-margin-requirements.htm, https://www.finra.org/rules-guidance/rulebooks/finra-rules/4210, and https://www.finra.org/rules-guidance/key-topics/margin-accounts
+- Extended-hours trading must remain blocked unless liquidity, spread, data quality, and broker-specific extended-hours rules are tested and approved. Alpaca notes extended-hours trading has specific risks due to less liquidity: https://docs.alpaca.markets/docs/trading/orders/
+- Market order use must remain blocked unless slippage, price collars, LULD state, liquidity, and broker execution behavior are tested and approved. Alpaca warns market orders can fill at unexpected prices, and SEC Rule 15c3-5 requires erroneous-order controls: https://docs.alpaca.markets/docs/trading/orders/ and https://ecfr.io/Title-17/Section-240.15c3-5
+- Manual approvals must be recorded for model promotion, risk-limit changes, broker-paper enablement, live-readiness review, margin simulation, short simulation, and any future live-capable code. FINRA Rule 2130 uses account approval procedures for day-trading strategies, and SEC Rule 15c3-5 requires access restriction: https://www.finra.org/rules-guidance/rulebooks/finra-rules/2130 and https://ecfr.io/Title-17/Section-240.15c3-5
+
+## Live Readiness Checklist
+
+- Counsel review complete and signed: required because FINRA Rule 2270 notes potential registration requirements: https://www.finra.org/rules-guidance/rulebooks/finra-rules/2270
+- Broker written constraints received and encoded: required because broker house requirements may exceed regulatory minimums: https://www.finra.org/rules-guidance/key-topics/margin-accounts
+- SEC Rule 15c3-5 style controls documented and tested: required for market-access style financial and regulatory risk controls: https://ecfr.io/Title-17/Section-240.15c3-5
+- Regulation T and FINRA margin model tested: required for any margin exposure: https://www.federalreserve.gov/frrs/regulations/section-22012-supplement-margin-requirements.htm and https://www.finra.org/rules-guidance/rulebooks/finra-rules/4210
+- SR-FINRA-2025-017 broker implementation confirmed: required because day-trading margin provisions are in transition: https://www.sec.gov/rules-regulations/self-regulatory-organization-rulemaking/sr-finra-2025-017
+- Regulation SHO short-sale model tested: required before any short sale: https://www.sec.gov/investor/pubs/regsho.htm
+- LULD and market-wide circuit breaker handling tested: required because trades can be prevented or markets halted: https://www.finra.org/filing-reporting/trf/limit-uplimit-down-luld-plan and https://www.investor.gov/introduction-investing/general-resources/news-alerts/alerts-bulletins/measures
+- Paper limitations disclosed in every report: required because paper fills may differ from live fills: https://docs.alpaca.markets/docs/trading/paper-trading/
+
+## Final Blocker Statement
+
+Phase 0 and Phase 1 must not place live trades, must not include live-trading code, and must not include a live-trading configuration path. Day trading and margin are high risk, and regulatory requirements are broker-specific and time-sensitive. Any future live-trading consideration must start from this blocker list, not bypass it. Sources: ../../AGENTS.md, ../../docs/TRIDENT_LOB_MODEL.md, https://www.sec.gov/about/reports-publications/investor-publications/day-trading-your-dollars-at-risk, and https://www.finra.org/rules-guidance/rulebooks/finra-rules/2270
