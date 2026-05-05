@@ -8,7 +8,7 @@ phase: Phase 1C
 owner_agent: A3 Features And Labels
 review_agent: A10 Validation And Benchmarks
 priority: high
-status: in_progress
+status: review
 ```
 
 ## Objective
@@ -257,3 +257,59 @@ Stop and escalate if the task needs:
 - Apache Parquet overview: https://parquet.apache.org/docs/overview/
 - Polars lazy API: https://docs.pola.rs/user-guide/concepts/lazy-api/
 - DuckDB Python API: https://duckdb.org/docs/stable/clients/python/overview
+
+## Implementation Notes
+
+Status updated to `review` on 2026-05-05 after adding the Phase 1C feature,
+label, split, and leakage-report skeleton.
+
+Added:
+
+- Strict `FeatureRow`, `FeatureQualityFlags`, leakage finding, and leakage
+  report schemas with fail-closed availability checks.
+- Tiny offline feature builder for completed-bar technical features and
+  L1 top-of-book ordinary microstructure features from TASK-002 synthetic
+  records.
+- Bars-only degraded mode that keeps quote-dependent values null and records
+  explicit unavailable-feature reasons.
+- Strict `LabelRow` schemas kept separate from feature rows, with 60 second
+  and 300 second label builder support, cost-aware direction labels, stress
+  label placeholders, costs, buffers, and null reason codes.
+- Chronological split manifest schemas and a fixed chronological split builder
+  with embargo metadata.
+- Leakage report helpers that fail for future feature availability, future news
+  availability or publication, calendar actuals unavailable at prediction time,
+  and insufficient split embargo.
+- Tests for feature availability, completed-bar eligibility, label separation,
+  chronological split embargo, bars-only degradation, future-news rejection,
+  missing future labels, no random row split helper, and the existing safety
+  surface scan.
+
+Validation run:
+
+- `.venv/bin/python -c "import platform; print(platform.machine())"`: `arm64`.
+- `.venv/bin/python -c "import sys; print(sys.version)"`: Python `3.12.13`.
+- `.venv/bin/python -m pytest`: passed, 31 tests.
+- `.venv/bin/ruff check .`: passed.
+- `.venv/bin/ruff format --check .`: passed.
+- `.venv/bin/mypy src`: passed.
+- `rg -n "alpaca|binance|coinbase|interactive brokers|kraken|api_key|secret_key|order_router|order_url|live_trading|broker" src configs benchmarks tests`:
+  found only existing safety-blocking guard literals and the split-string safety
+  test fixture, not endpoints, credential paths, order routers, or enable flags.
+
+Validation not run:
+
+- Exact bare `python -c ...` commands were not available because `python` is not
+  on the shell path.
+- `uv sync --locked` and exact `uv run ...` commands were not available because
+  `uv` is not on the shell path.
+
+Safety review:
+
+- No live broker endpoints, live credential paths, live order routers,
+  live-trading flags, paid data payloads, raw vendor archives, secrets, private
+  account information, production model logic, backtesting logic, paper broker
+  implementation, trading logic, or profitability claims were added.
+- Feature rows fail closed when source availability exceeds prediction time.
+- Labels remain separate from features and intentionally record future outcome
+  availability only in label rows.
