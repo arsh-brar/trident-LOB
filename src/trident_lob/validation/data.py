@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import hashlib
+import json
 from collections.abc import Mapping, Sequence
 from typing import Any
 
@@ -11,6 +13,7 @@ from trident_lob.data.schemas import (
     EventBatchManifest,
     LicenseClass,
     QuoteRecord,
+    canonical_record_to_row,
 )
 from trident_lob.validation.gates import GuardViolation
 
@@ -72,6 +75,12 @@ def assert_secret_free_mapping(values: Mapping[str, Any]) -> None:
         raise GuardViolation(f"possible secret-bearing fields: {', '.join(hits)}")
 
 
+def content_hash_for_validated_records(records: Sequence[CanonicalDataRecord]) -> str:
+    rows = [canonical_record_to_row(record) for record in records]
+    encoded = json.dumps(rows, sort_keys=True, separators=(",", ":")).encode()
+    return hashlib.sha256(encoded).hexdigest()
+
+
 def validate_event_batch(
     records: Sequence[CanonicalDataRecord],
     manifest: EventBatchManifest,
@@ -85,5 +94,8 @@ def validate_event_batch(
         max_ts = max(record.event_ts_ns for record in records)
         if manifest.timestamp_start_ns != min_ts or manifest.timestamp_end_ns != max_ts:
             raise GuardViolation("manifest timestamp range does not match records.")
+    if manifest.content_hash != content_hash_for_validated_records(records):
+        raise GuardViolation("manifest content_hash does not match records.")
+    assert_monotone_event_time(records)
     assert_no_crossed_quotes(records)
     assert_manifest_commit_safe(manifest)

@@ -8,7 +8,7 @@ phase: Phase 1B
 owner_agent: A1 Data Adapters and A2 Event Store
 review_agent: A10 Validation And Benchmarks
 priority: high
-status: review
+status: done
 ```
 
 ## Objective
@@ -272,3 +272,60 @@ Safety review:
   account information, future-data features, production model logic, backtest
   logic, paper broker implementation, trading logic, or profitability claims
   were added.
+
+## Review Outcome
+
+A10 Validation And Benchmarks reviewed commit
+`5ffd8984f3b7b7d411e54b154db381efadb87542` on branch
+`task-002-offline-data-event-store`.
+
+Initial findings:
+
+- `validate_event_batch` accepted mismatched `manifest.content_hash` values
+  before registration.
+- `validate_event_batch` did not enforce monotone event time before registration.
+
+Fixes applied:
+
+- Event-batch validation now recomputes the canonical JSON SHA-256 content hash
+  and rejects mismatched manifest hashes.
+- Event-batch validation now enforces monotone `event_ts_ns` ordering before
+  local Parquet registration.
+- Regression tests cover mismatched manifest hashes and out-of-order same-type
+  event batches through `LocalParquetEventStore.register_batch`.
+
+Validation run after fixes:
+
+- `tests/test_data_event_store.py`: passed, 12 tests.
+- `.venv/bin/python -c "import platform; print(platform.machine())"`: `arm64`.
+- `.venv/bin/python -c "import sys; print(sys.version)"`: Python `3.12.13`.
+- `.venv/bin/pytest`: passed, 21 tests.
+- `.venv/bin/ruff check .`: passed.
+- `.venv/bin/ruff format --check .`: passed.
+- `.venv/bin/mypy src`: passed.
+
+Validation not run after fixes:
+
+- Exact `python -c ...` commands were not available because `python` is not on
+  the shell path.
+- `uv sync --locked` and exact `uv run ...` commands were not available because
+  `uv` is not on the shell path.
+
+Environment note:
+
+- The project validation used `.venv/bin/python`, which reports Python
+  `3.12.13` and matches the project `>=3.12,<3.13` requirement.
+- Bare `python` is not on the shell path.
+- Global `python3` is available at `/opt/homebrew/bin/python3`, but it reports
+  Python `3.14.4`, so it is not the project-pinned interpreter for this task.
+- `uv` is not on the shell path in this reviewing shell.
+
+Safety review after fixes:
+
+- No live broker endpoints, live credential paths, live order routers,
+  live-trading flags, paid data payloads, raw vendor archives, secrets, private
+  account information, future-data features, production model logic, backtest
+  logic, paper broker implementation, trading logic, or profitability claims
+  were added.
+
+Status: done.

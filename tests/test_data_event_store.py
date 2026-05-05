@@ -162,6 +162,44 @@ def test_local_parquet_event_store_round_trip(tmp_path: Path) -> None:
     assert result.select("bid_price").item() == 100.0
 
 
+def test_event_store_rejects_mismatched_manifest_hash(tmp_path: Path) -> None:
+    adapter = SyntheticFixtureAdapter()
+    records = [
+        record
+        for record in adapter.market_records()
+        if record.record_type == RecordType.QUOTE
+    ]
+    manifest = adapter.manifest_for(records, record_type=RecordType.QUOTE).model_copy(
+        update={"content_hash": "not-the-record-hash"}
+    )
+    store = LocalParquetEventStore(tmp_path)
+
+    with pytest.raises(GuardViolation, match="content_hash"):
+        store.register_batch(records, manifest)
+
+
+def test_event_store_rejects_out_of_order_batch(tmp_path: Path) -> None:
+    adapter = SyntheticFixtureAdapter()
+    first_quote = next(
+        record
+        for record in adapter.market_records()
+        if record.record_type == RecordType.QUOTE
+    )
+    later_quote = first_quote.model_copy(
+        update={
+            "event_ts_ns": first_quote.event_ts_ns + 10,
+            "available_at_ns": first_quote.available_at_ns + 10,
+            "sequence": 2,
+        }
+    )
+    records = [later_quote, first_quote]
+    manifest = adapter.manifest_for(records, record_type=RecordType.QUOTE)
+    store = LocalParquetEventStore(tmp_path)
+
+    with pytest.raises(GuardViolation, match="ordered"):
+        store.register_batch(records, manifest)
+
+
 def test_event_store_registration_is_immutable(tmp_path: Path) -> None:
     adapter = SyntheticFixtureAdapter()
     records = [
